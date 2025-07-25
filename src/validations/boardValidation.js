@@ -1,8 +1,8 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
-
   /**
    * Note: Mặc định chúng ta không cần phải custom message ở phía BE làm gì vì để cho phía Front-end tự validation và custom mess phía FE cho đẹp.
    * Back-end chỉ cần validation Đảm bảo dữ liệu chuẩn xác, và trả về message mặc định từ thư viện là được.
@@ -23,17 +23,15 @@ const createNew = async (req, res, next) => {
 
   try {
     console.log('req.body: ', req.body)
-
     // abortEarly: false để show ra tất cả các lỗi validation gặp phải. 
     await correctCondition.validateAsync(req.body, { abortEarly: false })
     // Validation dữ liệu xong xuôi hợp lệ thì cho request đi tiếp sang Controller
     next()
-
   } catch (error) {
-    console.log(error)
-    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      errors: new Error(error).message
-    })
+    // const errorMessage = new Error(error).message
+    // const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    // next(customError)
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
   }
 
 }
